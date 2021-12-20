@@ -1,0 +1,13 @@
+
+
+
+Pour lancer le serveur, se mettre dans le dossier dézippé DMdjamal-chekroun et taper la commande:
+$ node itineraire.js
+
+(ou, comme sur mon PC, 
+$ nodejs itineraire.js)
+
+aller ensuite sur localhost:8080
+
+Ce programme implémente toutes les fonctions de base + temps de parcours + autocomplétion + indication de la direction à chaque changement
+

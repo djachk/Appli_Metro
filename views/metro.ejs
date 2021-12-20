@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>Metro</title>
+
+    
+<script src="https://code.jquery.com/jquery-3.1.1.js"></script>
+    <!-- JS file -->
+<script src="EasyAutocomplete-1.3.5/jquery.easy-autocomplete.min.js"></script> 
+
+<!-- CSS file -->
+<link rel="stylesheet" href="EasyAutocomplete-1.3.5/easy-autocomplete.min.css">
+
+<!-- Additional CSS Themes file - not required-->
+<link rel="stylesheet" href="EasyAutocomplete-1.3.5/easy-autocomplete.themes.min.css"> 
+<style>
+     #depart, #arrivee, #bouton {
+      display: inline-block !important;
+     }
+    #resultat p {
+        background-color: white;
+        color: black;
+        margin-top:1px;
+        margin-bottom:1px;
+        margin-left:3px;
+        /*border-style: solid;*/
+     }
+</style>  
+  </head>
+
+  <body>
+  <div style="margin-left:100px;">
+    <h1>Metro Itineraires</h1>
+    <!--<div id="calc"> -->
+      <input id="depart" style="display: inline-block;" type="text" name="depart">
+      <input id="arrivee" style="display: inline-block;" type="text" name="arrivee">
+      <button id="bouton" style="display: inline-block;" type="button">Calculer Itineraire</button> 
+   <!-- </div> -->
+      <div id="resultat">
+      </div>
+  </div>
+
+<script>
+var options1 = {
+  url:  "http://localhost:8080/nomstations" ,
+  placeholder: "départ",
+  list: {
+    match: {
+      enabled: true
+    },
+    sort: {
+      enabled: true
+    }
+  }
+};
+var options2 = {
+  url:  "http://localhost:8080/nomstations" ,
+  placeholder: "arrivée",
+  list: {
+    match: {
+      enabled: true
+    },
+    sort: {
+      enabled: true
+    }
+  }
+};
+$("#depart").easyAutocomplete(options1);
+$("#arrivee").easyAutocomplete(options2);
+
+$("#bouton").click( function(){
+  document.getElementById("resultat").innerHTML='';
+var depart=document.getElementById("depart").value;
+var arrivee=document.getElementById("arrivee").value;
+if (depart==arrivee) {
+  document.getElementById("resultat").innerHTML="<p> Vous y etes deja! </p>";
+  return;
+}
+console.log("depart= "+depart);
+console.log("arrivee= "+arrivee);
+$.get("http://localhost:8080/calculer", {dep:depart,arr:arrivee}, function(res,status,xhr){
+  console.log(res);
+  if (res.length==0) {
+    document.getElementById("resultat").innerHTML="<p> donnees incorrectes </p>";
+    return;
+    }
+    
+  var temps_parcours=0.0;
+   for (var i=0;i<res.length;i++) {
+       if (i==0) {temps_parcours+=0.33;}
+       if (i==0 && res[i].station1==res[i].station2) {continue;}
+       if (i==res.length-1 && res[i].station1==res[i].station2) {continue;}
+ 
+    //if (res[i].station1==res[i].station2) {
+      if (res[i].changer) {
+        temps_parcours+=1.5;
+        document.getElementById("resultat").innerHTML+="<p> <b>Changer à "+res[i].station1 +" pour prendre la ligne "+res[i].num_ligne +" en direction de "+res[i].direction+"</b></p>";
+    }
+    else {
+    document.getElementById("resultat").innerHTML+="<p>"+res[i].station1+" => "+res[i].station2+ " (ligne "+res[i].num_ligne+")</p>";
+    temps_parcours+=1.53;
+    }
+   };
+
+    document.getElementById("resultat").innerHTML+="<p><br/>Votre de temps de parcours sera de "+temps_parcours.toFixed(1)+" minutes</p>";
+  }); //fin fonction
+
+});
+
+
+</script>
+
+</body>
+</html>
